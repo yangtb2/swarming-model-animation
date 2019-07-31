@@ -7,18 +7,18 @@ fps = 0
 l_fps = 60
 h_fps = 0
 alpha = -2
-gama = 0.32
+gama = -1
 m_pred = 1
 b_pred = 0.1
 m_prey = 0.5
-b_prey = 0.5
+b_prey = 1
 
 
 class Predator(object):
     def __init__(self):
         self.pos = [
-            random.random()*width/5+width*0.3,
-            random.random()*height/5+height*0.3]
+            random.random()*width/5+width*0.4,
+            random.random()*height/5+height*0.4]
         self.v = [0, 0]
         self.dx, self.dy = 0, 0
         self.rect = pygame.Rect(self.pos[0], self.pos[1], 23, 23)
@@ -39,8 +39,8 @@ class Predator(object):
 class Prey(object):
     def __init__(self):
         self.pos = [
-            random.random()*width/5+width*0.3,
-            random.random()*height/5+height*0.3]
+            random.random()*width/5+width*0.4,
+            random.random()*height/5+height*0.4]
         self.v = [0, 0]
         self.dx, self.dy = 0, 0
         self.rect = pygame.Rect(self.pos[0], self.pos[1], 23, 23)
@@ -83,8 +83,8 @@ def FrameUpdate():
             if not i_pred == j_pred:
                 c = long_rang_force(
                     predators[i_pred].pos, predators[j_pred].pos)
-                predators[i_pred].v[0] = predators[i_pred].v[0] - c[0]/m_pred
-                predators[i_pred].v[1] = predators[i_pred].v[1] - c[1]/m_pred
+                predators[i_pred].v[0] = predators[i_pred].v[0] + c[0]/m_pred
+                predators[i_pred].v[1] = predators[i_pred].v[1] + c[1]/m_pred
             j_pred = j_pred + 1
         i_pred = i_pred + 1
         # print("predator.v:", predator.v)
@@ -155,8 +155,8 @@ if __name__ == "__main__":
     screen = pygame.display.set_mode(size, pygame.RESIZABLE)
     pygame.display.set_caption("Swarming Mode")
     clock = pygame.time.Clock()
-    predators = [Predator(), Predator()]
-    preys = [Prey(), Prey(), Prey(), Prey(), Prey(), Prey(), Prey(), Prey()]
+    predators = [Predator(), Predator(), Predator()]
+    preys = [Prey(), Prey(), Prey(), Prey(), Prey(), Prey(), Prey()]
     FrameInit()
     while True:
         clock.tick(fps)
@@ -166,15 +166,17 @@ if __name__ == "__main__":
             elif event.type == pygame.VIDEORESIZE:
                 size = width, height = event.size
                 screen = pygame.display.set_mode(size, pygame.RESIZABLE)
-                predators = [Predator(), Predator()]
+                predators = [Predator(), Predator(), Predator()]
                 preys = [
                     Prey(), Prey(), Prey(), Prey(),
-                    Prey(), Prey(), Prey(), Prey()]
+                    Prey(), Prey(), Prey()]
             elif event.type == pygame.KEYDOWN:
-                if event.key == pygame.K_SPACE:
-                    fps = h_fps
-            elif event.type == pygame.KEYUP:
-                if event.key == pygame.K_SPACE:
-                    fps = l_fps
+                if event.key == pygame.K_h:
+                    if event.mod & pygame.KMOD_ALT:
+                        fps = h_fps
+                elif event.key == pygame.K_l:
+                    if event.mod & pygame.KMOD_ALT:
+                        fps = l_fps
+                # print(fps)
         FrameUpdate()
     pygame.quit()
