@@ -68,13 +68,25 @@ def FrameInit():
 
 
 def FrameUpdate():
-    for Predator in predators:
-        Predator.v[0] = Predator.v[0] - b_pred*Predator.v[0]
-        Predator.v[1] = Predator.v[1] - b_pred*Predator.v[1]
+    i_pred = 0
+    while i_pred < len(predators):
+        predators[i_pred].v[0] = (
+            predators[i_pred].v[0] - b_pred*predators[i_pred].v[0])
+        predators[i_pred].v[1] = (
+            predators[i_pred].v[1] - b_pred*predators[i_pred].v[1])
         for Prey in preys:
-            a = long_rang_force(Predator.pos, Prey.pos)
-            Predator.v[0] = Predator.v[0] + a[0]/m_pred
-            Predator.v[1] = Predator.v[1] + a[1]/m_pred
+            a = long_rang_force(predators[i_pred].pos, Prey.pos)
+            predators[i_pred].v[0] = predators[i_pred].v[0] + a[0]/m_pred
+            predators[i_pred].v[1] = predators[i_pred].v[1] + a[1]/m_pred
+        j_pred = 0
+        while j_pred < len(predators):
+            if not i_pred == j_pred:
+                c = long_rang_force(
+                    predators[i_pred].pos, predators[j_pred].pos)
+                predators[i_pred].v[0] = predators[i_pred].v[0] - c[0]/m_pred
+                predators[i_pred].v[1] = predators[i_pred].v[1] - c[1]/m_pred
+            j_pred = j_pred + 1
+        i_pred = i_pred + 1
         # print("predator.v:", predator.v)
 
     i_prey = 0
@@ -143,7 +155,7 @@ if __name__ == "__main__":
     screen = pygame.display.set_mode(size, pygame.RESIZABLE)
     pygame.display.set_caption("Swarming Mode")
     clock = pygame.time.Clock()
-    predators = [Predator()]
+    predators = [Predator(), Predator()]
     preys = [Prey(), Prey(), Prey(), Prey(), Prey(), Prey(), Prey(), Prey()]
     FrameInit()
     while True:
@@ -154,7 +166,7 @@ if __name__ == "__main__":
             elif event.type == pygame.VIDEORESIZE:
                 size = width, height = event.size
                 screen = pygame.display.set_mode(size, pygame.RESIZABLE)
-                predators = [Predator()]
+                predators = [Predator(), Predator()]
                 preys = [
                     Prey(), Prey(), Prey(), Prey(),
                     Prey(), Prey(), Prey(), Prey()]
