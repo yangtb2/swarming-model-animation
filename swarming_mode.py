@@ -2,29 +2,31 @@ import sys
 import pygame
 import pygame.freetype
 import random
+import math
 
 size = width, height = 800, 600
+rr = (width**2+height**2)**0.5
 fps = 0
 l_fps = 60
 h_fps = 0
 alpha = -2  # for short range force
-gama = 10   # for long range force
+gama = 2   # for long range force
 m_pred = 1
-b_pred = 0.1
+b_pred = 1
 MOD = cooperate, none, compete = 1, 0, -1
 # for cooperate, + long range force between preds
 # for none , no force between preds
 # for compete, -long rang force between preds
-mod_pred = cooperate
+mod_pred = compete
 m_prey = 0.5
 b_prey = 1
 
 
 class Predator(object):
     def __init__(self):
+        r, sita = (1+random.random())*rr*0.05, random.uniform(0, math.pi*2)
         self.pos = [
-            random.random()*width/5+width*0.4,
-            random.random()*height/5+height*0.4]
+            width/2+r*math.cos(sita), height/2+r*math.sin(sita)]
         self.v = [0, 0]
         self.dx, self.dy = 0, 0
         self.rect = pygame.Rect(self.pos[0], self.pos[1], 23, 23)
@@ -44,9 +46,9 @@ class Predator(object):
 
 class Prey(object):
     def __init__(self):
+        r, sita = random.random()*rr*0.05, random.uniform(0, math.pi*2)
         self.pos = [
-            random.random()*width/5+width*0.4,
-            random.random()*height/5+height*0.4]
+            width/2+r*math.cos(sita), height/2+r*math.sin(sita)]
         self.v = [0, 0]
         self.dx, self.dy = 0, 0
         self.rect = pygame.Rect(self.pos[0], self.pos[1], 23, 23)
@@ -194,12 +196,19 @@ if __name__ == "__main__":
             if event.type == pygame.QUIT:
                 sys.exit()
             elif event.type == pygame.VIDEORESIZE:
+                for Prey in preys:
+                    Prey.rect = Prey.rect.move(
+                        (event.size[0]-width)/2, (event.size[1]-height)/2)
+                for Predator in predators:
+                    Predator.rect = Predator.rect.move(
+                        (event.size[0]-width)/2, (event.size[1]-height)/2)
                 size = width, height = event.size
                 screen = pygame.display.set_mode(size, pygame.RESIZABLE)
-                predators = [Predator(), Predator(), Predator()]
-                preys = [
-                    Prey(), Prey(), Prey(), Prey(),
-                    Prey(), Prey(), Prey()]
+                for Predator in predators:
+                    screen.blit(Predator.image, Predator.rect)
+                for Prey in preys:
+                    screen.blit(Prey.image, Prey.rect)
+                pygame.display.update()
             elif event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_h:
                     if event.mod & pygame.KMOD_ALT:
@@ -207,6 +216,5 @@ if __name__ == "__main__":
                 elif event.key == pygame.K_l:
                     if event.mod & pygame.KMOD_ALT:
                         fps = l_fps
-                # print(fps)
         FrameUpdate()
     pygame.quit()
