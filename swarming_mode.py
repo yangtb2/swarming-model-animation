@@ -1,15 +1,21 @@
 import sys
 import pygame
+import pygame.freetype
 import random
 
 size = width, height = 800, 600
 fps = 0
 l_fps = 60
 h_fps = 0
-alpha = -2
-gama = -1
+alpha = -2  # for short range force
+gama = 10   # for long range force
 m_pred = 1
 b_pred = 0.1
+MOD = cooperate, none, compete = 1, 0, -1
+# for cooperate, + long range force between preds
+# for none , no force between preds
+# for compete, -long rang force between preds
+mod_pred = cooperate
 m_prey = 0.5
 b_prey = 1
 
@@ -59,7 +65,8 @@ class Prey(object):
 
 
 def FrameInit():
-    # screen.fill((0, 0, 0))
+    screen.fill((0, 0, 0))
+    text_draw()
     for Predator in predators:
         screen.blit(Predator.image, Predator.rect)
     for Prey in preys:
@@ -83,8 +90,10 @@ def FrameUpdate():
             if not i_pred == j_pred:
                 c = long_rang_force(
                     predators[i_pred].pos, predators[j_pred].pos)
-                predators[i_pred].v[0] = predators[i_pred].v[0] + c[0]/m_pred
-                predators[i_pred].v[1] = predators[i_pred].v[1] + c[1]/m_pred
+                predators[i_pred].v[0] = (
+                    predators[i_pred].v[0] + mod_pred*c[0]/m_pred)
+                predators[i_pred].v[1] = (
+                    predators[i_pred].v[1] + mod_pred*c[1]/m_pred)
             j_pred = j_pred + 1
         i_pred = i_pred + 1
         # print("predator.v:", predator.v)
@@ -115,11 +124,23 @@ def FrameUpdate():
         Prey.move()
 
     screen.fill((0, 0, 0))
+    text_draw()
     for Predator in predators:
         screen.blit(Predator.image, Predator.rect)
     for Prey in preys:
         screen.blit(Prey.image, Prey.rect)
     pygame.display.update()
+
+
+def text_draw():
+    f1rect = font.render_to(screen, (0, 0), text1, fgcolor=(255, 251, 0))
+    f2rect = font.render_to(
+        screen, (0, f1rect.height), text2, fgcolor=(255, 251, 0))
+    f3rect = font.render_to(
+        screen, (0, f1rect.height+f2rect.height), text3, fgcolor=(255, 251, 0))
+    font.render_to(
+        screen, (0, f1rect.height+f2rect.height+f3rect.height),
+        text4, fgcolor=(255, 251, 0))
 
 
 def short_rang_force(posi, posj):
@@ -157,6 +178,15 @@ if __name__ == "__main__":
     clock = pygame.time.Clock()
     predators = [Predator(), Predator(), Predator()]
     preys = [Prey(), Prey(), Prey(), Prey(), Prey(), Prey(), Prey()]
+    font = pygame.freetype.Font("C:/Windows/Fonts/msyh.ttc", 16)
+    text1 = "alpha=" + str(alpha) + "    gama=" + str(gama)
+    text2 = (
+        "m_pred=" + str(m_pred) + "    b_pred=" + str(b_pred) +
+        "    mod_pred=" + str(mod_pred))
+    text3 = "m_prey=" + str(m_prey) + "    b_prey=" + str(b_prey)
+    text4 = (
+        "predator_count=" + str(len(predators)) +
+        "    prey_count=" + str(len(preys)))
     FrameInit()
     while True:
         clock.tick(fps)
